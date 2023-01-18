@@ -4,40 +4,54 @@
 
 import json
 
-# Opening JSON file
-f = open('0TAdcIE5.json')
 
-# returns JSON object as 
-# a dictionary
-data = json.load(f)
+def checklists2description(filename):
+    # Opening JSON file
+    f = open(filename + '.json')
 
-# Iterating through the json
-# list
-cards = data['cards']
-checklists = data['checklists']
+    # returns JSON object as
+    # a dictionary
+    data = json.load(f)
 
-cardsDict={}
-for c in cards:
-    id = c['id']
-    name = c['name']
-    archived = c['closed']
-    cardsDict[id] = {'name': name, 'archived': archived}
+    # Closing file
+    f.close()
 
-for i in checklists:
-    cardId = i['idCard']
-    name = i['name']
-    items = i['checkItems']
-    cardName = cardsDict[cardId]['name']
-    archived = cardsDict[cardId]['archived']
-    if not archived:
-        print('----------------------------------------------------------------------')
-        print(cardName)
-        print(name)
-        for item in items:
-            print('-' + item['name'])
-        print('\n')
+    # Iterating through the json
+    # list
+    cards = data['cards']
+    checklists = data['checklists']
+    descriptions = []
+
+    cardsDict={}
+    for c in cards:
+        cardId = c['id']
+        cardsDict[cardId] = c
+
+    for i in checklists:
+        cardId = i['idCard']
+        name = i['name']
+        items = i['checkItems']
+        cardName = cardsDict[cardId]['name']
+        archived = cardsDict[cardId]['closed']
+        description = ''  # cardsDict[cardId]['desc']
+        if not archived:
+            description = description + '\n' \
+                          + '----' + '\n' \
+                          + '**' + name + '**' + '\n'
+            for item in items:
+                done = ''
+                if item['state'] == 'complete':
+                    done = ' - DONE'
+                description = description + '-' + item['name'] + done + '\n'
+            description = description + '\n'
+        cardsDict[cardId]['desc'] += description
+        descriptions.append(description)
+
+    data['cards'] = cards
+
+    # Writing to sample.json
+    with open(filename + '-corrected.json', 'w') as outfile:
+        outfile.write(json.dumps(data))
 
 
-
-# Closing file
-f.close()
+checklists2description('Board-URI')
