@@ -20,12 +20,17 @@ def checklists2description(filename):
     # list
     cards = data['cards']
     checklists = data['checklists']
-    descriptions = []
 
     cardsDict={}
     for c in cards:
         cardId = c['id']
-        cardsDict[cardId] = c
+        newCard = {}
+        newCard['id'] = cardId
+        newCard['name'] = c['name']
+        newCard['closed'] = c['closed']
+        newCard['desc'] = c['desc']
+        newCard['is_updated'] = False
+        cardsDict[cardId] = newCard
 
     for i in checklists:
         cardId = i['idCard']
@@ -44,14 +49,19 @@ def checklists2description(filename):
                     done = ' - DONE'
                 description = description + '-' + item['name'] + done + '\n'
             description = description + '\n'
-        cardsDict[cardId]['desc'] += description
-        descriptions.append(description)
+            cardsDict[cardId]['desc'] += description
+            cardsDict[cardId]['is_updated'] = True
 
-    data['cards'] = cards
+    for c in cardsDict.values():
+        if c['is_updated']:
+            print('---')
+            print('---')
+            print(c['name'])
+            print(c['desc'])
 
     # Writing to sample.json
-    with open(filename + '-corrected.json', 'w') as outfile:
-        outfile.write(json.dumps(data))
+    # with open(filename + '-corrected.json', 'w') as outfile:
+    #     outfile.write(json.dumps(data))
 
 
 checklists2description('Board-URI')

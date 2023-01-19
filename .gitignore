@@ -1,0 +1,5 @@
+
+*.json
+.idea/dbnavigator.xml
+.idea/misc.xml
+.idea/trelloparser.iml
